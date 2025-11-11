@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import LoadingSpinner from "../../Components/LoadingSpinner/LoadingSpinner";
 import { Link } from "react-router-dom";
+import LoadingSpinner from "../../Components/LoadingSpinner/LoadingSpinner";
 
 const AllMovies = () => {
   const [loading, setLoading] = useState(true);
@@ -20,17 +20,17 @@ const AllMovies = () => {
   if (loading) return <LoadingSpinner />;
 
   return (
-    <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-black text-white min-h-screen py-16">
+    <div className="bg-base-100 text-base-content min-h-screen py-16 transition-all duration-300">
       <motion.div
         initial={{ opacity: 0, y: -40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7 }}
         className="text-center mb-12"
       >
-        <h2 className="text-4xl md:text-5xl font-extrabold mb-3 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+        <h2 className="text-4xl md:text-5xl font-extrabold mb-3 text-primary">
           🎬 All Movies
         </h2>
-        <p className="text-gray-300 text-lg max-w-2xl mx-auto">
+        <p className="text-base-content opacity-70 text-lg max-w-2xl mx-auto">
           Discover your favorite movies, explore ratings, genres, and more — all in one cinematic hub.
         </p>
         <div className="mt-6 flex justify-center">
@@ -50,26 +50,24 @@ const AllMovies = () => {
             key={movie.id}
             whileHover={{ scale: 1.05 }}
             transition={{ duration: 0.3 }}
-            className="relative bg-slate-800/40 rounded-2xl overflow-hidden shadow-lg border border-slate-700 hover:border-blue-500 hover:shadow-blue-500/30 transition-all"
+            className="relative bg-base-200 rounded-2xl overflow-hidden shadow-md hover:shadow-xl border border-base-300 transition-all"
           >
-            <div className="relative group">
-              <img
-                src={movie.posterUrl}
-                alt={movie.title}
-                className="w-full h-80 object-cover rounded-t-2xl group-hover:opacity-90 transition-opacity duration-300"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-4">
-                <h3 className="text-lg font-semibold mb-1">{movie.title}</h3>
-                <p className="text-sm text-gray-300">
-                  ⭐ {movie.rating} • {movie.genre} • {movie.releaseYear}
-                </p>
-                <Link
-                  to={`/movies/${movie.id}`}
-                  className="mt-3 inline-block text-sm bg-blue-500 hover:bg-blue-600 px-3 py-1.5 rounded-lg font-medium transition-colors"
-                >
-                  View Details
-                </Link>
-              </div>
+            <img
+              src={movie.posterUrl}
+              alt={movie.title}
+              className="w-full h-80 object-cover"
+            />
+            <div className="p-4 text-center">
+              <h3 className="text-lg font-semibold mb-1">{movie.title}</h3>
+              <p className="text-sm opacity-70">
+                ⭐ {movie.rating} • {movie.genre} • {movie.releaseYear}
+              </p>
+              <Link
+                to={`/movies/${movie.id}`}
+                className="mt-3 inline-block text-sm bg-gradient-to-r from-blue-500 to-purple-500 hover:opacity-90 text-white px-3 py-1.5 rounded-lg font-medium transition-colors"
+              >
+                View Details
+              </Link>
             </div>
           </motion.div>
         ))}
@@ -79,9 +77,9 @@ const AllMovies = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.8, duration: 1 }}
-        className="text-center text-gray-400 text-sm mt-16"
+        className="text-center text-base-content opacity-70 text-sm mt-16"
       >
-        © {new Date().getFullYear()} MovieMaster Pro 🎥 — Crafted with Passion.
+        © {new Date().getFullYear()} MovieMatrix 🎥 — Crafted with Passion.
       </motion.footer>
     </div>
   );

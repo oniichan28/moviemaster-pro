@@ -12,6 +12,6 @@ export default {
     themes: ["light", "dark"],
   },
   corePlugins: {
-    preflight: false, // ✅ Tailwind base reset off
+    preflight: false,
   },
 };

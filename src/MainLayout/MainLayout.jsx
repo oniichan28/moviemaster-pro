@@ -1,23 +1,25 @@
-import React from 'react';
-import Navbar from '../Components/Navbar/Navbar';
-import { Outlet } from 'react-router-dom';
-import Footer from '../Components/Footer/Footer';
+import React, { useState, useEffect } from "react";
+import { Outlet } from "react-router-dom";
+import Navbar from "../Components/Navbar/Navbar";
+import Footer from "../Components/Footer/Footer";
 
 const MainLayout = () => {
+  const [theme, setTheme] = useState(localStorage.getItem("theme") || "winter");
+
+  useEffect(() => {
+    document.querySelector("html").setAttribute("data-theme", theme);
+    localStorage.setItem("theme", theme);
+  }, [theme]);
+
   return (
-    <div className="flex flex-col min-h-screen bg-[#0b132b] text-white">
-      <Navbar />
-
-      <main className="flex-grow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <Outlet />
-        </div>
+    <div className="flex flex-col min-h-screen bg-base-100 text-base-content transition-all duration-300">
+      <Navbar theme={theme} setTheme={setTheme} />
+      <main className="flex-1">
+        <Outlet context={{ theme, setTheme }} />
       </main>
-
       <Footer />
     </div>
   );
 };
-
 
 export default MainLayout;
