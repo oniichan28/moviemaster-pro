@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import axios from "axios";
 import LoadingSpinner from "../../Components/LoadingSpinner/LoadingSpinner";
 
 const AllMovies = () => {
@@ -8,13 +9,17 @@ const AllMovies = () => {
   const [movies, setMovies] = useState([]);
 
   useEffect(() => {
-    fetch("/movies.json")
-      .then((res) => res.json())
-      .then((data) => {
-        setMovies(data);
+    const fetchMovies = async () => {
+      try {
+        const res = await axios.get("http://localhost:3000/movies");
+        setMovies(res.data);
+      } catch (error) {
+        console.error("❌ Error fetching movies:", error);
+      } finally {
         setLoading(false);
-      })
-      .catch(() => setLoading(false));
+      }
+    };
+    fetchMovies();
   }, []);
 
   if (loading) return <LoadingSpinner />;
@@ -47,7 +52,7 @@ const AllMovies = () => {
       >
         {movies.map((movie) => (
           <motion.div
-            key={movie.id}
+            key={movie._id}
             whileHover={{ scale: 1.05 }}
             transition={{ duration: 0.3 }}
             className="relative bg-base-200 rounded-2xl overflow-hidden shadow-md hover:shadow-xl border border-base-300 transition-all"
@@ -63,7 +68,7 @@ const AllMovies = () => {
                 ⭐ {movie.rating} • {movie.genre} • {movie.releaseYear}
               </p>
               <Link
-                to={`/movies/${movie.id}`}
+                to={`/movies/${movie._id}`}
                 className="mt-3 inline-block text-sm bg-gradient-to-r from-blue-500 to-purple-500 hover:opacity-90 text-white px-3 py-1.5 rounded-lg font-medium transition-colors"
               >
                 View Details

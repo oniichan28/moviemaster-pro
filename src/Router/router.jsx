@@ -31,7 +31,7 @@ const router = createBrowserRouter([
           </Suspense>
         ),
         loader: async () => {
-          const res = await fetch("/movies.json");
+          const res = await fetch("http://localhost:3000/movies");
           return res.json();
         },
       },
@@ -45,7 +45,7 @@ const router = createBrowserRouter([
           </Suspense>
         ),
         loader: async () => {
-          const res = await fetch("/movies.json");
+          const res = await fetch("http://localhost:3000/movies");
           return res.json();
         },
       },
@@ -59,7 +59,7 @@ const router = createBrowserRouter([
           </Suspense>
         ),
         loader: async () => {
-          const res = await fetch("/movies.json");
+          const res = await fetch("http://localhost:3000/movies/:id");
           return res.json();
         },
       },

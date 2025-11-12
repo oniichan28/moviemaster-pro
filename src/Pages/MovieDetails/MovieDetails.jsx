@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import toast, { Toaster } from "react-hot-toast";
 import LoadingSpinner from "../../Components/LoadingSpinner/LoadingSpinner";
 import { AuthContext } from "../../Provider/AuthProvider";
+import axios from "axios";
 
 const MovieDetails = () => {
   const { id } = useParams();
@@ -12,14 +13,17 @@ const MovieDetails = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/movies.json") // পরে backend API বসাও
-      .then((res) => res.json())
-      .then((data) => {
-        const found = data.find((m) => m.id === parseInt(id));
-        setMovie(found);
+    const fetchMovie = async () => {
+      try {
+        const res = await axios.get(`http://localhost:3000/movies/${id}`);
+        setMovie(res.data);
+      } catch (error) {
+        console.error("❌ Error fetching movie details:", error);
+      } finally {
         setLoading(false);
-      })
-      .catch(() => setLoading(false));
+      }
+    };
+    fetchMovie();
   }, [id]);
 
   if (loading) return <LoadingSpinner />;
@@ -31,8 +35,13 @@ const MovieDetails = () => {
       </p>
     );
 
-  const handleDelete = () => {
-    toast.success(`Deleted "${movie.title}" successfully!`);
+  const handleDelete = async () => {
+    try {
+      await axios.delete(`http://localhost:3000/movies/${id}`);
+      toast.success(`Deleted "${movie.title}" successfully!`);
+    } catch (error) {
+      toast.error("Failed to delete movie!");
+    }
   };
 
   const handleEdit = () => {
@@ -40,7 +49,7 @@ const MovieDetails = () => {
   };
 
   return (
-    <div className="bg-gradient-to-b from-black via-slate-900 to-slate-800 text-white min-h-screen py-16">
+    <div className="bg-base-100 text-base-content min-h-screen py-16 transition-all duration-300">
       <Toaster position="top-center" reverseOrder={false} />
 
       <motion.div
@@ -55,45 +64,41 @@ const MovieDetails = () => {
             alt={movie.title}
             className="w-full h-[520px] object-cover rounded-2xl"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent dark:from-black/80" />
         </div>
 
         <div className="space-y-6">
-          <h1 className="text-4xl md:text-5xl font-extrabold text-blue-400 leading-tight">
+          <h1 className="text-4xl md:text-5xl font-extrabold text-primary leading-tight transition-colors duration-300">
             {movie.title}
           </h1>
 
-          <div className="flex flex-wrap gap-3 text-sm text-gray-300">
-            <span className="bg-blue-500/20 px-3 py-1 rounded-full border border-blue-500">
+          <div className="flex flex-wrap gap-3 text-sm">
+            <span className="px-3 py-1 rounded-full border border-primary/50 bg-primary/10 text-base-content/90">
               {movie.genre}
             </span>
-            <span className="bg-yellow-500/20 px-3 py-1 rounded-full border border-yellow-500">
+            <span className="px-3 py-1 rounded-full border border-yellow-500/50 bg-yellow-500/10 text-base-content/90">
               ⭐ {movie.rating}
             </span>
-            <span className="bg-green-500/20 px-3 py-1 rounded-full border border-green-500">
+            <span className="px-3 py-1 rounded-full border border-green-500/50 bg-green-500/10 text-base-content/90">
               {movie.releaseYear}
             </span>
-            <span className="bg-purple-500/20 px-3 py-1 rounded-full border border-purple-500">
+            <span className="px-3 py-1 rounded-full border border-purple-500/50 bg-purple-500/10 text-base-content/90">
               {movie.language}
             </span>
           </div>
 
-          <div className="text-gray-300 leading-relaxed text-lg">
+          <div className="text-base-content/90 leading-relaxed text-lg space-y-1">
             <p>
-              <span className="font-semibold text-gray-100">Director:</span>{" "}
-              {movie.director}
+              <span className="font-semibold">Director:</span> {movie.director}
             </p>
             <p>
-              <span className="font-semibold text-gray-100">Cast:</span>{" "}
-              {movie.cast}
+              <span className="font-semibold">Cast:</span> {movie.cast}
             </p>
             <p>
-              <span className="font-semibold text-gray-100">Country:</span>{" "}
-              {movie.country}
+              <span className="font-semibold">Country:</span> {movie.country}
             </p>
             <p>
-              <span className="font-semibold text-gray-100">Duration:</span>{" "}
-              {movie.duration} mins
+              <span className="font-semibold">Duration:</span> {movie.duration} mins
             </p>
           </div>
 
@@ -101,7 +106,7 @@ const MovieDetails = () => {
             <div className="flex gap-4 pt-4">
               <button
                 onClick={handleEdit}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg shadow transition"
+                className="bg-primary hover:brightness-110 text-white font-semibold px-6 py-2 rounded-lg shadow transition"
               >
                 Edit
               </button>
@@ -122,10 +127,10 @@ const MovieDetails = () => {
         transition={{ duration: 0.7 }}
         className="max-w-5xl mx-auto mt-20 px-6"
       >
-        <h2 className="text-3xl font-bold text-white mb-4 border-b border-slate-700 pb-2">
+        <h2 className="text-3xl font-bold text-base-content mb-4 border-b border-base-300 pb-2">
           Plot Summary
         </h2>
-        <p className="text-gray-300 leading-relaxed text-lg tracking-wide">
+        <p className="text-base-content/80 leading-relaxed text-lg tracking-wide">
           {movie.plotSummary}
         </p>
       </motion.div>
@@ -134,7 +139,7 @@ const MovieDetails = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1, duration: 1 }}
-        className="text-center text-gray-400 text-sm mt-16 border-t border-slate-700/50 pt-6"
+        className="text-center text-base-content/70 text-sm mt-16 border-t border-base-300 pt-6"
       >
         © {new Date().getFullYear()} MovieMaster Pro 🎥 — Explore. Rate. Enjoy.
       </motion.footer>
