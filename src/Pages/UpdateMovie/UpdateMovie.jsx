@@ -32,10 +32,7 @@ const UpdateMovie = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      await axios.put(
-        `https://moviemaster-pro-server.vercel.app/movies/${id}`,
-        movie
-      );
+      await axios.put(`http://localhost:3000/movies/${id}`, movie);
       toast.success("✅ Movie updated successfully!");
       setTimeout(() => navigate("/movies/my-collection"), 1000);
     } catch (err) {
