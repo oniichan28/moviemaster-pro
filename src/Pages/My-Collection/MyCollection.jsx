@@ -1,165 +1,164 @@
 import React, { useContext, useEffect, useState } from "react";
-import { updateProfile } from "firebase/auth";
+import axios from "axios";
+import { Link } from "react-router-dom";
 import { AuthContext } from "../../Provider/AuthProvider";
-import LoadingSpinner from "../../Components/LoadingSpinner/LoadingSpinner";
 import { motion } from "framer-motion";
+import toast, { Toaster } from "react-hot-toast";
+import LoadingSpinner from "../../Components/LoadingSpinner/LoadingSpinner";
 
 const MyCollection = () => {
-  const { user, logoutUser } = useContext(AuthContext);
-  const [isEditing, setIsEditing] = useState(false);
-  const [displayName, setDisplayName] = useState(user?.displayName || "");
-  const [photoURL, setPhotoURL] = useState(user?.photoURL || "");
-  const [message, setMessage] = useState("");
+  const { user } = useContext(AuthContext);
+  const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [deleteId, setDeleteId] = useState(null);
+  const [deleteTitle, setDeleteTitle] = useState("");
 
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 500);
-    return () => clearTimeout(timer);
-  }, []);
+    if (!user?.email) return;
+    const fetchUserMovies = async () => {
+      try {
+        const res = await axios.get(`http://localhost:3000/movies`);
+        const userMovies = res.data.filter((m) => m.addedBy === user.email);
+        setMovies(userMovies);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUserMovies();
+  }, [user]);
 
-  if (loading) return <LoadingSpinner />;
+  const openDeleteModal = (id, title) => {
+    setDeleteId(id);
+    setDeleteTitle(title);
+    document.getElementById("delete_modal").showModal();
+  };
 
-  if (!user) {
-    return (
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
-        className="flex flex-col items-center justify-center h-screen text-center"
-      >
-        <h2 className="text-2xl font-semibold text-gray-700 mb-2">
-          Please log in to see your profile.
-        </h2>
-      </motion.div>
-    );
-  }
-
-  const handleUpdateProfile = async (e) => {
-    e.preventDefault();
+  const confirmDelete = async () => {
     try {
-      await updateProfile(user, {
-        displayName,
-        photoURL,
-      });
-      setMessage("✅ Profile updated successfully!");
-      setIsEditing(false);
-      window.location.reload();
+      await axios.delete(`http://localhost:3000/movies/${deleteId}`);
+      setMovies(movies.filter((m) => m._id !== deleteId));
+      toast.success(`"${deleteTitle}" deleted successfully!`);
     } catch (err) {
-      setMessage("❌ Failed to update profile: " + err.message);
+      toast.error("Failed to delete movie.");
+    } finally {
+      document.getElementById("delete_modal").close();
     }
   };
 
+  if (loading) return <LoadingSpinner />;
+
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.8 }}
-      className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-purple-100 via-white to-blue-100 p-6"
-    >
+    <div className="bg-base-100 text-base-content min-h-screen py-20 transition-all duration-300">
+      <Toaster position="top-center" />
       <motion.div
-        initial={{ y: 30, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
-        className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md text-center border border-gray-200"
+        initial={{ opacity: 0, y: -40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7 }}
+        className="text-center mb-14"
       >
-        <motion.div
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className="relative"
-        >
-          <img
-            src={user.photoURL || "https://i.ibb.co/ZmFHZDM/default-avatar.png"}
-            alt="Profile"
-            className="w-28 h-28 rounded-full mx-auto shadow-md border-4 border-purple-200"
-          />
-        </motion.div>
-
-        {!isEditing ? (
-          <>
-            <motion.h2
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="text-2xl font-semibold mt-4 text-gray-800"
-            >
-              {user.displayName || "Unnamed User"}
-            </motion.h2>
-            <p className="text-gray-600 mb-4">{user.email}</p>
-
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.3 }}
-              className="flex gap-3 justify-center"
-            >
-              <button
-                onClick={() => setIsEditing(true)}
-                className="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2 rounded-lg shadow-md transition-all"
-              >
-                Update Profile
-              </button>
-              <button
-                onClick={logoutUser}
-                className="bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-lg shadow-md transition-all"
-              >
-                Logout
-              </button>
-            </motion.div>
-          </>
-        ) : (
-          <motion.form
-            onSubmit={handleUpdateProfile}
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="mt-4 text-left"
-          >
-            <label className="block text-gray-700 font-medium mb-1">
-              Name
-            </label>
-            <input
-              type="text"
-              value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 mb-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-
-            <label className="block text-gray-700 font-medium mb-1">
-              Photo URL
-            </label>
-            <input
-              type="text"
-              value={photoURL}
-              onChange={(e) => setPhotoURL(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-
-            {message && (
-              <p className="text-center text-sm mb-3 text-green-600">
-                {message}
-              </p>
-            )}
-
-            <div className="flex gap-3 justify-center">
-              <button
-                type="submit"
-                className="bg-green-500 hover:bg-green-600 text-white px-5 py-2 rounded-lg shadow-md transition-all"
-              >
-                Save Changes
-              </button>
-              <button
-                type="button"
-                onClick={() => setIsEditing(false)}
-                className="bg-gray-400 hover:bg-gray-500 text-white px-5 py-2 rounded-lg shadow-md transition-all"
-              >
-                Cancel
-              </button>
-            </div>
-          </motion.form>
-        )}
+        <h2 className="text-4xl md:text-5xl font-extrabold mb-4 text-primary">
+          🎬 My Collection
+        </h2>
+        <p className="text-base-content/80 text-lg max-w-2xl mx-auto">
+          Manage all the movies you’ve added — edit or remove them easily.
+        </p>
+        <div className="mt-6 flex justify-center">
+          <div className="h-1 w-32 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full"></div>
+        </div>
       </motion.div>
-    </motion.div>
+
+      {movies.length === 0 ? (
+        <div className="flex flex-col justify-center items-center h-60 text-gray-500 text-lg">
+          😢 You haven’t added any movies yet.
+          <Link
+            to="/movies/add"
+            className="btn btn-primary mt-4 text-white font-semibold"
+          >
+            Add a Movie
+          </Link>
+        </div>
+      ) : (
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="px-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-8"
+        >
+          {movies.map((movie) => (
+            <motion.div
+              key={movie._id}
+              whileHover={{ scale: 1.05 }}
+              transition={{ duration: 0.3 }}
+              className="relative group bg-gradient-to-br from-gray-200/40 via-gray-100/30 to-gray-200/50 dark:from-gray-800/50 dark:via-gray-700/40 dark:to-gray-800/60 rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all"
+            >
+              <Link to={`/movies/${movie._id}`}>
+                <div className="w-full h-72 flex items-center justify-center bg-base-200">
+                  <img
+                    src={movie.posterUrl}
+                    alt={movie.title}
+                    className="max-h-full max-w-full object-contain transition-transform duration-500 group-hover:scale-105"
+                    onError={(e) =>
+                      (e.target.src =
+                        "https://dummyimage.com/400x600/000/fff&text=No+Image")
+                    }
+                  />
+                </div>
+              </Link>
+              <div className="p-4 text-center space-y-2">
+                <h4 className="text-lg font-semibold">{movie.title}</h4>
+                <p className="text-sm text-gray-500">
+                  ⭐ {movie.rating} • {movie.genre}
+                </p>
+                <div className="flex justify-center gap-3 mt-2">
+                  <Link
+                    to={`/movies/update/${movie._id}`}
+                    className="btn btn-sm bg-blue-500 hover:bg-blue-600 text-white"
+                  >
+                    Edit
+                  </Link>
+                  <button
+                    onClick={() => openDeleteModal(movie._id, movie.title)}
+                    className="btn btn-sm bg-red-500 hover:bg-red-600 text-white"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
+      )}
+
+      <motion.footer
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.8, duration: 1 }}
+        className="text-center text-base-content/70 text-sm mt-20"
+      >
+        © {new Date().getFullYear()} MovieMatrix 🎥 — Manage with Confidence.
+      </motion.footer>
+
+      <dialog id="delete_modal" className="modal">
+        <div className="modal-box bg-base-200 text-center">
+          <h3 className="text-lg font-bold text-red-500 mb-3">⚠️ Confirm Delete</h3>
+          <p className="text-base-content/80 mb-6">
+            Are you sure you want to delete{" "}
+            <span className="font-semibold">{deleteTitle}</span>?
+          </p>
+          <div className="flex justify-center gap-4">
+            <button onClick={confirmDelete} className="btn btn-error text-white">
+              Yes, Delete
+            </button>
+            <form method="dialog">
+              <button className="btn">Cancel</button>
+            </form>
+          </div>
+        </div>
+      </dialog>
+    </div>
   );
 };
 

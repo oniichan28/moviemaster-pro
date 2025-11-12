@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
-import { useNavigate, Link, useLocation, useOutletContext } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { toast } from "react-hot-toast";
@@ -17,14 +17,13 @@ const Signin = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(true);
-  const { theme, setTheme } = useOutletContext(); // 🌗 Theme from MainLayout
   const navigate = useNavigate();
   const location = useLocation();
   const auth = getAuth();
   const { user } = useContext(AuthContext);
   const googleProvider = new GoogleAuthProvider();
 
-  const from = location.state?.from?.pathname || "/";
+  const from = location.state?.from || "/";
 
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 400);
@@ -57,10 +56,6 @@ const Signin = () => {
     }
   };
 
-  const handleTheme = (checked) => {
-    setTheme(checked ? "night" : "winter");
-  };
-
   const handleForgotPassword = () => {
     navigate("/forgot-password", { state: { email: formData.email } });
   };
@@ -86,20 +81,6 @@ const Signin = () => {
         transition={{ duration: 0.7 }}
         className="md:w-1/2 flex flex-col justify-center p-10"
       >
-        <div className="flex justify-end mb-4">
-          <label className="flex items-center cursor-pointer">
-            <input
-              type="checkbox"
-              className="toggle toggle-primary"
-              onChange={(e) => handleTheme(e.target.checked)}
-              checked={theme === "night"}
-            />
-            <span className="ml-2 text-sm font-medium">
-              {theme === "night" ? "Dark" : "Light"}
-            </span>
-          </label>
-        </div>
-
         <motion.div className="w-full max-w-md mx-auto bg-base-200 p-8 rounded-2xl shadow-xl">
           <h1 className="text-4xl font-bold mb-2 text-center">Welcome Back</h1>
           <p className="opacity-70 text-center mb-6">

@@ -46,16 +46,27 @@ const SectionRow = ({ title, limit, startIndex }) => {
             <motion.div
               whileHover={{ scale: 1.05 }}
               transition={{ duration: 0.3 }}
-              className="relative bg-base-200 rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all group cursor-pointer"
+              className="relative group bg-gradient-to-br from-gray-200/40 via-gray-100/30 to-gray-200/50 
+              dark:from-gray-800/50 dark:via-gray-700/40 dark:to-gray-800/60 
+              rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all cursor-pointer"
             >
               <Link to={`/movies/${movie._id}`}>
-                <img
-                  src={movie.posterUrl}
-                  alt={movie.title}
-                  className="w-full h-72 object-cover rounded-2xl group-hover:brightness-75 transition-all"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl flex flex-col justify-end p-4">
-                  <h4 className="text-lg font-semibold text-white">
+                <div className="w-full h-72 flex items-center justify-center bg-base-200">
+                  <img
+                    src={movie.posterUrl}
+                    alt={movie.title}
+                    className="max-h-full max-w-full object-contain transition-transform duration-500 group-hover:scale-105"
+                    onError={(e) =>
+                      (e.target.src =
+                        "https://dummyimage.com/400x600/000/fff&text=No+Image")
+                    }
+                  />
+                </div>
+
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent 
+                opacity-0 group-hover:opacity-100 transition-opacity duration-500 
+                rounded-2xl flex flex-col justify-end p-4 backdrop-blur-[1px]">
+                  <h4 className="text-lg font-semibold text-white truncate">
                     {movie.title}
                   </h4>
                   <p className="text-sm text-gray-300 mt-1">

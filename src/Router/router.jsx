@@ -11,6 +11,7 @@ import AddMovie from "../Pages/AddMovie/AddMovie";
 import MovieDetails from "../Pages/MovieDetails/MovieDetails";
 import FilterMovies from "../Pages/Filter/FilterMovies";
 import Watchlist from "../Pages/Watchlist/Watchlist";
+import UpdateMovie from "../Pages/UpdateMovie/UpdateMovie";
 
 const Home = lazy(() => import("../Pages/Home/Home"));
 const Login = lazy(() => import("../Pages/Login/Login"));
@@ -34,7 +35,7 @@ const router = createBrowserRouter([
         },
       },
       {
-        path: "/all-movies",
+        path: "/movies",
         element: (
           <Suspense fallback={<LoadingSpinner />}>
             <AllMovies />
@@ -46,10 +47,12 @@ const router = createBrowserRouter([
         },
       },
       {
-        path: "/movies/:id",
+        path: "/movies/add",
         element: (
           <Suspense fallback={<LoadingSpinner />}>
-            <MovieDetails />
+            <PrivateRoute>
+              <AddMovie />
+            </PrivateRoute>
           </Suspense>
         ),
       },
@@ -64,20 +67,20 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "/movies/add",
+        path: "/movies/update/:id",
         element: (
           <Suspense fallback={<LoadingSpinner />}>
             <PrivateRoute>
-              <AddMovie />
+              <UpdateMovie />
             </PrivateRoute>
           </Suspense>
         ),
       },
       {
-        path: "/filter",
+        path: "/movies/:id",
         element: (
           <Suspense fallback={<LoadingSpinner />}>
-            <FilterMovies />
+            <MovieDetails />
           </Suspense>
         ),
       },
@@ -115,7 +118,9 @@ const router = createBrowserRouter([
         path: "/forgot-password",
         element: (
           <Suspense fallback={<LoadingSpinner />}>
-            <ForgotPassword />
+            <PrivateRoute>
+             <ForgotPassword />
+            </PrivateRoute>
           </Suspense>
         ),
       },

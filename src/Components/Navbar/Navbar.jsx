@@ -30,10 +30,14 @@ const Navbar = ({ theme, setTheme }) => {
 
   const navLinks = [
     { path: "/", label: "Home" },
-    { path: "/all-movies", label: "All Movies" },
+    { path: "/movies", label: "All Movies" },
     { path: "/movies/my-collection", label: "My Collection" },
     { path: "/movies/add", label: "Add Movie" },
     { path: "/watchlist", label: "Watchlist" },
+    
+
+
+
   ];
 
   return (

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate, Link, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import toast, { Toaster } from "react-hot-toast";
 import LoadingSpinner from "../../Components/LoadingSpinner/LoadingSpinner";
@@ -11,12 +11,22 @@ const MovieDetails = () => {
   const { user } = useContext(AuthContext);
   const [movie, setMovie] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isInWatchlist, setIsInWatchlist] = useState(false);
+  const [processing, setProcessing] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const fetchMovie = async () => {
       try {
         const res = await axios.get(`http://localhost:3000/movies/${id}`);
         setMovie(res.data);
+
+        if (user?.email) {
+          const watchlistRes = await axios.get(`http://localhost:3000/watchlist/${user.email}`);
+          const found = watchlistRes.data.find((m) => m._id === res.data._id);
+          setIsInWatchlist(!!found);
+        }
       } catch (err) {
         console.error("Error loading movie:", err);
       } finally {
@@ -24,7 +34,41 @@ const MovieDetails = () => {
       }
     };
     fetchMovie();
-  }, [id]);
+  }, [id, user?.email]);
+
+  const handleWatchlist = async () => {
+    if (!user) {
+      toast.error("Please log in to manage your watchlist");
+      setTimeout(() => {
+        navigate("/login", { state: { from: location.pathname } });
+      }, 1000);
+      return;
+    }
+
+    setProcessing(true);
+    try {
+      if (isInWatchlist) {
+        const res = await axios.get(`http://localhost:3000/watchlist/${user.email}`);
+        const item = res.data.find((m) => m._id === movie._id);
+        if (item) {
+          await axios.delete(`http://localhost:3000/watchlist/${user.email}/${item._id}`);
+          setIsInWatchlist(false);
+          toast.success(`Removed "${movie.title}" from Watchlist ❌`);
+        }
+      } else {
+        await axios.post("http://localhost:3000/watchlist", {
+          userEmail: user.email,
+          movieId: movie._id,
+        });
+        setIsInWatchlist(true);
+        toast.success(`Added "${movie.title}" to Watchlist ❤️`);
+      }
+    } catch (error) {
+      toast.error("Something went wrong!");
+    } finally {
+      setProcessing(false);
+    }
+  };
 
   if (loading) return <LoadingSpinner />;
   if (!movie)
@@ -34,18 +78,9 @@ const MovieDetails = () => {
       </p>
     );
 
-  const handleDelete = () => {
-    toast.success(`Deleted "${movie.title}" successfully!`);
-  };
-
-  const handleEdit = () => {
-    toast(`Edit mode for "${movie.title}"`, { icon: "✏️" });
-  };
-
   return (
     <div className="relative min-h-screen overflow-hidden">
       <Toaster position="top-center" />
-
       <div
         className="absolute inset-0 bg-cover bg-center blur-2xl scale-110"
         style={{
@@ -53,7 +88,6 @@ const MovieDetails = () => {
           filter: "blur(25px) brightness(40%)",
         }}
       ></div>
-
       <div className="relative z-10 text-white py-20 px-6 md:px-16 lg:px-24">
         <motion.div
           initial={{ opacity: 0, y: -30 }}
@@ -107,22 +141,41 @@ const MovieDetails = () => {
               </p>
             </div>
 
-            {user?.email === movie.addedBy && (
-              <div className="flex gap-4 pt-4">
-                <button
-                  onClick={handleEdit}
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg shadow transition"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={handleDelete}
-                  className="bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-2 rounded-lg shadow transition"
-                >
-                  Delete
-                </button>
-              </div>
-            )}
+            <div className="flex flex-wrap gap-4 pt-4">
+              {user?.email === movie.addedBy && (
+                <>
+                  <Link
+                    to={`/movies/update/${movie._id}`}
+                    className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg shadow transition"
+                  >
+                    Edit
+                  </Link>
+                  <button
+                    onClick={() =>
+                      document.getElementById("delete_modal").showModal()
+                    }
+                    className="bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-2 rounded-lg shadow transition"
+                  >
+                    Delete
+                  </button>
+                </>
+              )}
+              <button
+                onClick={handleWatchlist}
+                disabled={processing}
+                className={`${
+                  isInWatchlist
+                    ? "bg-red-600 hover:bg-red-700"
+                    : "bg-gradient-to-r from-blue-500 to-purple-500 hover:opacity-90"
+                } text-white font-semibold px-6 py-2 rounded-lg shadow transition`}
+              >
+                {processing
+                  ? "Processing..."
+                  : isInWatchlist
+                  ? "Remove from Watchlist ❌"
+                  : "Add to Watchlist ❤️"}
+              </button>
+            </div>
           </div>
         </motion.div>
 
@@ -149,6 +202,22 @@ const MovieDetails = () => {
           © {new Date().getFullYear()} MovieMatrix 🎥 — Explore. Rate. Enjoy.
         </motion.footer>
       </div>
+
+      <dialog id="delete_modal" className="modal">
+        <div className="modal-box bg-base-200 text-center">
+          <h3 className="text-lg font-bold text-red-500 mb-3">⚠️ Confirm Delete</h3>
+          <p className="text-base-content/80 mb-6">
+            Are you sure you want to delete{" "}
+            <span className="font-semibold">{movie.title}</span>?
+          </p>
+          <div className="flex justify-center gap-4">
+            <button className="btn btn-error text-white">Yes, Delete</button>
+            <form method="dialog">
+              <button className="btn">Cancel</button>
+            </form>
+          </div>
+        </div>
+      </dialog>
     </div>
   );
 };

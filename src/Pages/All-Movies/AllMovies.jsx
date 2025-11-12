@@ -54,38 +54,42 @@ const AllMovies = () => {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
-        className="px-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-8"
+        className="px-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-8"
       >
         {movies.map((movie) => (
           <motion.div
             key={movie._id}
             whileHover={{ scale: 1.05 }}
             transition={{ duration: 0.3 }}
-            className="relative group bg-base-200 rounded-2xl overflow-hidden shadow-md hover:shadow-xl border border-base-300 transition-all"
+            className="relative group bg-gradient-to-br from-gray-200/40 via-gray-100/30 to-gray-200/50 dark:from-gray-800/50 dark:via-gray-700/40 dark:to-gray-800/60 rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all"
           >
-            <img
-              src={movie.posterUrl}
-              alt={movie.title}
-              className="w-full h-80 object-cover transition-all duration-500 group-hover:scale-110 group-hover:brightness-90"
-              onError={(e) =>
-                (e.target.src = "https://dummyimage.com/400x600/000/fff&text=No+Image")
-              }
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-            <div className="absolute bottom-0 w-full p-4 text-center z-10">
-              <h3 className="text-lg font-semibold mb-1 text-white drop-shadow">
-                {movie.title}
-              </h3>
-              <p className="text-xs text-gray-200 mb-3">
-                ⭐ {movie.rating} • {movie.genre} • {movie.releaseYear}
-              </p>
-              <Link
-                to={`/movies/${movie._id}`}
-                className="inline-block text-sm bg-gradient-to-r from-blue-500 to-purple-500 hover:opacity-90 text-white px-4 py-1.5 rounded-full font-medium transition"
-              >
-                View Details →
-              </Link>
-            </div>
+            <Link to={`/movies/${movie._id}`}>
+              <div className="w-full h-72 flex items-center justify-center bg-base-200">
+                <img
+                  src={movie.posterUrl}
+                  alt={movie.title}
+                  className="max-h-full max-w-full object-contain transition-transform duration-500 group-hover:scale-105"
+                  onError={(e) =>
+                    (e.target.src =
+                      "https://dummyimage.com/400x600/000/fff&text=No+Image")
+                  }
+                />
+              </div>
+
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl flex flex-col justify-end p-4">
+                <h4 className="text-lg font-semibold text-white truncate">
+                  {movie.title}
+                </h4>
+                <p className="text-sm text-gray-300 mt-1">
+                  ⭐ {movie.rating} • {movie.genre}
+                </p>
+                <div className="mt-3">
+                  <button className="inline-block bg-gradient-to-r from-blue-500 to-purple-500 text-white px-3 py-1.5 rounded-full text-xs font-medium">
+                    View Details →
+                  </button>
+                </div>
+              </div>
+            </Link>
           </motion.div>
         ))}
       </motion.div>
