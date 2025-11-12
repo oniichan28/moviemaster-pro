@@ -7,16 +7,14 @@ import PrivateRoute from "./PrivateRoute/PrivateRoute";
 import PublicRoute from "./PublicRoute/PublicRoute";
 import AllMovies from "../Pages/All-Movies/AllMovies";
 import MyCollection from "../Pages/My-Collection/MyCollection";
-import MyAdd from "../Pages/My Add/MyAdd";
+import AddMovie from "../Pages/AddMovie/AddMovie";
 import MovieDetails from "../Pages/MovieDetails/MovieDetails";
-
+import FilterMovies from "../Pages/Filter/FilterMovies";
+import Watchlist from "../Pages/Watchlist/Watchlist";
 
 const Home = lazy(() => import("../Pages/Home/Home"));
-const ServiceDetails = lazy(() => import("../Pages/MovieDetails/MovieDetails"));
-const Profile = lazy(() => import("../Pages/My-Collection/MyCollection"));
 const Login = lazy(() => import("../Pages/Login/Login"));
 const Signup = lazy(() => import("../Pages/Signup/Signup"));
-
 
 const router = createBrowserRouter([
   {
@@ -39,9 +37,7 @@ const router = createBrowserRouter([
         path: "/all-movies",
         element: (
           <Suspense fallback={<LoadingSpinner />}>
-           
-              <AllMovies />
-            
+            <AllMovies />
           </Suspense>
         ),
         loader: async () => {
@@ -53,21 +49,17 @@ const router = createBrowserRouter([
         path: "/movies/:id",
         element: (
           <Suspense fallback={<LoadingSpinner />}>
-            
-              <MovieDetails />
-            
+            <MovieDetails />
           </Suspense>
         ),
-        loader: async () => {
-          const res = await fetch("http://localhost:3000/movies/:id");
-          return res.json();
-        },
       },
       {
         path: "/movies/my-collection",
         element: (
           <Suspense fallback={<LoadingSpinner />}>
-            <MyCollection />
+            <PrivateRoute>
+              <MyCollection />
+            </PrivateRoute>
           </Suspense>
         ),
       },
@@ -75,7 +67,27 @@ const router = createBrowserRouter([
         path: "/movies/add",
         element: (
           <Suspense fallback={<LoadingSpinner />}>
-            <MyAdd />
+            <PrivateRoute>
+              <AddMovie />
+            </PrivateRoute>
+          </Suspense>
+        ),
+      },
+      {
+        path: "/filter",
+        element: (
+          <Suspense fallback={<LoadingSpinner />}>
+            <FilterMovies />
+          </Suspense>
+        ),
+      },
+      {
+        path: "/watchlist",
+        element: (
+          <Suspense fallback={<LoadingSpinner />}>
+            <PrivateRoute>
+              <Watchlist />
+            </PrivateRoute>
           </Suspense>
         ),
       },
