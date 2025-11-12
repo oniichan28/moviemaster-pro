@@ -1,13 +1,16 @@
 import React, { useContext, useState } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../Provider/AuthProvider";
 import { getAuth, signOut } from "firebase/auth";
-import { FaBars, FaTimes, FaUserCircle } from "react-icons/fa";
+import { FaBars, FaTimes } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
+import toast, { Toaster } from "react-hot-toast";
 
 const Navbar = ({ theme, setTheme }) => {
   const { user } = useContext(AuthContext);
   const auth = getAuth();
+  const navigate = useNavigate();
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
@@ -19,29 +22,33 @@ const Navbar = ({ theme, setTheme }) => {
   const handleLogout = async () => {
     try {
       setLoggingOut(true);
-      await new Promise((r) => setTimeout(r, 1200));
+      await new Promise((r) => setTimeout(r, 1000));
       await signOut(auth);
+      toast.success("👋 Logged out successfully!");
+      navigate("/");
     } catch (err) {
-      console.error("Logout failed:", err);
+      toast.error("Logout failed!");
     } finally {
       setLoggingOut(false);
     }
   };
 
-  const navLinks = [
+  const publicLinks = [
     { path: "/", label: "Home" },
     { path: "/movies", label: "All Movies" },
+  ];
+
+  const privateLinks = [
     { path: "/movies/my-collection", label: "My Collection" },
     { path: "/movies/add", label: "Add Movie" },
     { path: "/watchlist", label: "Watchlist" },
-    
-
-
-
   ];
+
+  const navLinks = user ? [...publicLinks, ...privateLinks] : publicLinks;
 
   return (
     <nav className="sticky top-0 z-50 backdrop-blur-lg bg-base-100/70 border-b border-base-300 shadow-sm transition-all duration-300">
+      <Toaster position="top-center" />
       <div className="max-w-7xl mx-auto flex justify-between items-center px-4 py-3">
         <div className="flex items-center gap-3">
           <motion.button
@@ -73,14 +80,23 @@ const Navbar = ({ theme, setTheme }) => {
             <NavLink
               key={link.path}
               to={link.path}
+              end
               className={({ isActive }) =>
-                `relative transition-all hover:text-primary ${
-                  isActive ? "text-primary font-semibold" : ""
+                `relative transition-all duration-300 hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-r hover:from-pink-500 hover:to-purple-500 ${
+                  isActive
+                    ? "text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-500 font-semibold"
+                    : "text-base-content"
                 }`
               }
             >
               {link.label}
-              <span className="absolute bottom-[-4px] left-0 w-0 h-[2px] bg-primary transition-all group-hover:w-full"></span>
+              <span
+                className={`absolute bottom-[-4px] left-0 h-[2px] rounded-full transition-all duration-300 ${
+                  window.location.pathname === link.path
+                    ? "w-full bg-gradient-to-r from-pink-500 to-purple-500"
+                    : "w-0 group-hover:w-full bg-gradient-to-r from-pink-500 to-purple-500"
+                }`}
+              ></span>
             </NavLink>
           ))}
         </div>
@@ -95,7 +111,7 @@ const Navbar = ({ theme, setTheme }) => {
               <img
                 src={user?.photoURL || "https://i.ibb.co.com/d2mY2mP/user.png"}
                 alt="User"
-                className="w-9 h-9 rounded-full border border-gray-400 cursor-pointer hover:ring-2 hover:ring-primary transition"
+                className="w-9 h-9 rounded-full border border-gray-400 cursor-pointer hover:ring-2 hover:ring-pink-500 transition"
               />
 
               <AnimatePresence>
@@ -105,15 +121,18 @@ const Navbar = ({ theme, setTheme }) => {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.2 }}
-                    className="absolute top-11 right-0 bg-base-200 shadow-lg rounded-lg p-3 w-40"
+                    className="absolute top-11 right-0 bg-base-200 shadow-lg rounded-lg p-3 w-48"
                   >
-                    <p className="text-center font-semibold mb-2">
+                    <p className="text-center font-semibold mb-1 text-base">
                       {user.displayName || "User"}
+                    </p>
+                    <p className="text-center text-xs text-gray-500 mb-3 break-all">
+                      {user.email || "No email available"}
                     </p>
                     <button
                       onClick={handleLogout}
                       disabled={loggingOut}
-                      className={`btn btn-sm w-full bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white ${
+                      className={`btn btn-sm w-full bg-gradient-to-r from-pink-500 to-purple-500 text-white border-none ${
                         loggingOut ? "opacity-70" : ""
                       }`}
                     >
@@ -131,13 +150,13 @@ const Navbar = ({ theme, setTheme }) => {
             <div className="flex items-center gap-2">
               <Link
                 to="/login"
-                className="btn btn-sm bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white font-semibold"
+                className="btn btn-sm bg-gradient-to-r from-pink-500 to-purple-500 text-white font-semibold border-none"
               >
                 Login
               </Link>
               <Link
                 to="/signup"
-                className="btn btn-sm bg-gradient-to-l from-purple-500 to-fuchsia-500 text-white font-semibold"
+                className="btn btn-sm bg-gradient-to-l from-pink-500 to-purple-500 text-white font-semibold border-none"
               >
                 Register
               </Link>
@@ -172,10 +191,13 @@ const Navbar = ({ theme, setTheme }) => {
                 <li key={link.path}>
                   <NavLink
                     to={link.path}
+                    end
                     onClick={() => setIsMenuOpen(false)}
                     className={({ isActive }) =>
                       `block transition-all ${
-                        isActive ? "text-primary font-semibold" : ""
+                        isActive
+                          ? "text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-500 font-semibold"
+                          : "text-base-content"
                       }`
                     }
                   >
@@ -188,7 +210,7 @@ const Navbar = ({ theme, setTheme }) => {
                   <button
                     onClick={handleLogout}
                     disabled={loggingOut}
-                    className={`btn btn-sm w-full bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white ${
+                    className={`btn btn-sm w-full bg-gradient-to-r from-pink-500 to-purple-500 text-white border-none ${
                       loggingOut ? "opacity-70" : ""
                     }`}
                   >
@@ -205,7 +227,7 @@ const Navbar = ({ theme, setTheme }) => {
                     <Link
                       to="/login"
                       onClick={() => setIsMenuOpen(false)}
-                      className="btn btn-sm w-full bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white"
+                      className="btn btn-sm w-full bg-gradient-to-r from-pink-500 to-purple-500 text-white border-none"
                     >
                       Login
                     </Link>
@@ -214,7 +236,7 @@ const Navbar = ({ theme, setTheme }) => {
                     <Link
                       to="/signup"
                       onClick={() => setIsMenuOpen(false)}
-                      className="btn btn-sm w-full bg-gradient-to-l from-purple-500 to-fuchsia-500 text-white"
+                      className="btn btn-sm w-full bg-gradient-to-l from-pink-500 to-purple-500 text-white border-none"
                     >
                       Register
                     </Link>

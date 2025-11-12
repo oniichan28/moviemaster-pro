@@ -14,7 +14,9 @@ const Watchlist = () => {
   useEffect(() => {
     if (!user?.email) return;
     axios
-      .get(`https://moviemaster-pro-server.vercel.app/watchlist/${user.email}`)
+      .get(
+        `https://moviemaster-pro-server-private.vercel.app/watchlist/${user.email}`
+      )
       .then((res) => setWatchlist(res.data))
       .catch(() => setWatchlist([]));
   }, [user]);
@@ -28,7 +30,7 @@ const Watchlist = () => {
   const confirmRemove = async () => {
     try {
       await axios.delete(
-        `https://moviemaster-pro-server.vercel.app/watchlist/${user.email}/${deleteId}`
+        `https://moviemaster-pro-server-private.vercel.app/watchlist/${user.email}/${deleteId}`
       );
       setWatchlist(watchlist.filter((item) => item._id !== deleteId));
       toast.success(`Removed "${deleteTitle}" from watchlist!`);

@@ -12,7 +12,7 @@ const SectionRow = ({ title, limit, startIndex }) => {
 
   useEffect(() => {
     axios
-      .get("https://moviemaster-pro-server.vercel.app/movies")
+      .get("https://moviemaster-pro-server-private.vercel.app/movies")
       .then((res) => setMovies(res.data.slice(startIndex, startIndex + limit)))
       .catch((err) => console.error("❌ Error fetching movies:", err));
   }, [limit, startIndex]);

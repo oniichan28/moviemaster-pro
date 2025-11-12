@@ -4,7 +4,7 @@ import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
 import { AuthContext } from "../../Provider/AuthProvider";
 
-const AddMovie = ({ onMovieAdded }) => {
+const AddMovie = () => {
   const { user } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
 
@@ -41,8 +41,8 @@ const AddMovie = ({ onMovieAdded }) => {
         createdAt: new Date(),
       };
 
-      const res = await axios.post(
-        "https://moviemaster-pro-server.vercel.app/movies",
+      await axios.post(
+        "https://moviemaster-pro-server-private.vercel.app/movies",
         newMovie
       );
       toast.success("🎬 Movie added successfully!");
@@ -59,11 +59,9 @@ const AddMovie = ({ onMovieAdded }) => {
         plotSummary: "",
         posterUrl: "",
       });
-      setLoading(false);
-      onMovieAdded?.(res.data);
-    } catch (err) {
-      console.error(err);
+    } catch {
       toast.error("❌ Failed to add movie");
+    } finally {
       setLoading(false);
     }
   };
@@ -84,90 +82,43 @@ const AddMovie = ({ onMovieAdded }) => {
           onSubmit={handleSubmit}
           className="grid grid-cols-1 md:grid-cols-2 gap-6"
         >
-          <input
-            type="text"
-            name="title"
-            value={movie.title}
-            onChange={handleChange}
-            placeholder="Movie Title"
-            className="input input-bordered w-full rounded-xl"
-            required
-          />
-          <input
-            type="text"
-            name="genre"
-            value={movie.genre}
-            onChange={handleChange}
-            placeholder="Genre (e.g. Action, Sci-Fi)"
-            className="input input-bordered w-full rounded-xl"
-            required
-          />
-          <input
-            type="text"
-            name="director"
-            value={movie.director}
-            onChange={handleChange}
-            placeholder="Director"
-            className="input input-bordered w-full rounded-xl"
-          />
-          <input
-            type="text"
-            name="cast"
-            value={movie.cast}
-            onChange={handleChange}
-            placeholder="Cast (comma separated)"
-            className="input input-bordered w-full rounded-xl"
-          />
-          <input
-            type="number"
-            name="releaseYear"
-            value={movie.releaseYear}
-            onChange={handleChange}
-            placeholder="Release Year"
-            className="input input-bordered w-full rounded-xl"
-          />
-          <input
-            type="number"
-            step="0.1"
-            name="rating"
-            value={movie.rating}
-            onChange={handleChange}
-            placeholder="Rating (0 - 10)"
-            className="input input-bordered w-full rounded-xl"
-          />
-          <input
-            type="number"
-            name="duration"
-            value={movie.duration}
-            onChange={handleChange}
-            placeholder="Duration (mins)"
-            className="input input-bordered w-full rounded-xl"
-          />
-          <input
-            type="text"
-            name="language"
-            value={movie.language}
-            onChange={handleChange}
-            placeholder="Language"
-            className="input input-bordered w-full rounded-xl"
-          />
-          <input
-            type="text"
-            name="country"
-            value={movie.country}
-            onChange={handleChange}
-            placeholder="Country"
-            className="input input-bordered w-full rounded-xl"
-          />
-          <input
-            type="url"
-            name="posterUrl"
-            value={movie.posterUrl}
-            onChange={handleChange}
-            placeholder="Poster Image URL"
-            className="input input-bordered w-full rounded-xl md:col-span-2"
-            required
-          />
+          {[
+            "title",
+            "genre",
+            "director",
+            "cast",
+            "releaseYear",
+            "rating",
+            "duration",
+            "language",
+            "country",
+            "posterUrl",
+          ].map((field) => (
+            <input
+              key={field}
+              type={
+                field === "releaseYear" || field === "duration"
+                  ? "number"
+                  : field === "rating"
+                  ? "number"
+                  : field === "posterUrl"
+                  ? "url"
+                  : "text"
+              }
+              step={field === "rating" ? "0.1" : undefined}
+              name={field}
+              value={movie[field]}
+              onChange={handleChange}
+              placeholder={
+                field === "posterUrl"
+                  ? "Poster URL"
+                  : field.charAt(0).toUpperCase() + field.slice(1)
+              }
+              className={`input input-bordered w-full rounded-xl ${
+                field === "posterUrl" ? "md:col-span-2" : ""
+              }`}
+            />
+          ))}
           <textarea
             name="plotSummary"
             value={movie.plotSummary}
@@ -175,8 +126,8 @@ const AddMovie = ({ onMovieAdded }) => {
             placeholder="Plot Summary"
             rows={4}
             className="textarea textarea-bordered w-full rounded-xl md:col-span-2"
-            required
           ></textarea>
+
           <motion.button
             type="submit"
             whileTap={{ scale: 0.95 }}

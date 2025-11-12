@@ -31,7 +31,7 @@ const router = createBrowserRouter([
         ),
         loader: async () => {
           const res = await fetch(
-            "https://moviemaster-pro-server.vercel.app/movies"
+            "https://moviemaster-pro-server-private.vercel.app/movies"
           );
           return res.json();
         },
@@ -45,7 +45,7 @@ const router = createBrowserRouter([
         ),
         loader: async () => {
           const res = await fetch(
-            "https://moviemaster-pro-server.vercel.app/movies"
+            "https://moviemaster-pro-server-private.vercel.app/movies"
           );
           return res.json();
         },
@@ -122,9 +122,9 @@ const router = createBrowserRouter([
         path: "/forgot-password",
         element: (
           <Suspense fallback={<LoadingSpinner />}>
-            <PrivateRoute>
+            <PublicRoute>
               <ForgotPassword />
-            </PrivateRoute>
+            </PublicRoute>
           </Suspense>
         ),
       },

@@ -20,19 +20,22 @@ const MovieDetails = () => {
     const fetchMovie = async () => {
       try {
         const res = await axios.get(
-          `https://moviemaster-pro-server.vercel.app/movies/${id}`
+          `https://moviemaster-pro-server-private.vercel.app/movies/${id}`
         );
         setMovie(res.data);
 
         if (user?.email) {
           const watchlistRes = await axios.get(
-            `https://moviemaster-pro-server.vercel.app/watchlist/${user.email}`
+            `https://moviemaster-pro-server-private.vercel.app/watchlist/${user.email}`
           );
-          const found = watchlistRes.data.find((m) => m._id === res.data._id);
+          const found = watchlistRes.data.find(
+            (m) => m.movieId === res.data._id
+          );
           setIsInWatchlist(!!found);
         }
       } catch (err) {
         console.error("Error loading movie:", err);
+        toast.error("Failed to load movie details.");
       } finally {
         setLoading(false);
       }
@@ -42,9 +45,9 @@ const MovieDetails = () => {
 
   const handleWatchlist = async () => {
     if (!user) {
-      toast.error("Please log in to manage your watchlist");
+      toast.error("Please log in to manage your watchlist!");
       setTimeout(() => {
-        navigate("/login", { state: { from: location.pathname } });
+        navigate("/login", { state: { from: location } });
       }, 1000);
       return;
     }
@@ -53,19 +56,19 @@ const MovieDetails = () => {
     try {
       if (isInWatchlist) {
         const res = await axios.get(
-          `https://moviemaster-pro-server.vercel.app/watchlist/${user.email}`
+          `https://moviemaster-pro-server-private.vercel.app/watchlist/${user.email}`
         );
-        const item = res.data.find((m) => m._id === movie._id);
+        const item = res.data.find((m) => m.movieId === movie._id);
         if (item) {
           await axios.delete(
-            `https://moviemaster-pro-server.vercel.app/watchlist/${user.email}/${item._id}`
+            `https://moviemaster-pro-server-private.vercel.app/watchlist/${user.email}/${item._id}`
           );
           setIsInWatchlist(false);
           toast.success(`Removed "${movie.title}" from Watchlist ❌`);
         }
       } else {
         await axios.post(
-          "https://moviemaster-pro-server.vercel.app/watchlist",
+          "https://moviemaster-pro-server-private.vercel.app/watchlist",
           {
             userEmail: user.email,
             movieId: movie._id,
@@ -75,9 +78,23 @@ const MovieDetails = () => {
         toast.success(`Added "${movie.title}" to Watchlist ❤️`);
       }
     } catch (error) {
+      console.error(error);
       toast.error("Something went wrong!");
     } finally {
       setProcessing(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      await axios.delete(
+        `https://moviemaster-pro-server-private.vercel.app/movies/${movie._id}`
+      );
+      toast.success("🎬 Movie deleted successfully!");
+      document.getElementById("delete_modal").close();
+      setTimeout(() => navigate("/movies/my-collection"), 1000);
+    } catch (error) {
+      toast.error("❌ Failed to delete movie.");
     }
   };
 
@@ -92,6 +109,7 @@ const MovieDetails = () => {
   return (
     <div className="relative min-h-screen overflow-hidden">
       <Toaster position="top-center" />
+
       <div
         className="absolute inset-0 bg-cover bg-center blur-2xl scale-110"
         style={{
@@ -99,6 +117,7 @@ const MovieDetails = () => {
           filter: "blur(25px) brightness(40%)",
         }}
       ></div>
+
       <div className="relative z-10 text-white py-20 px-6 md:px-16 lg:px-24">
         <motion.div
           initial={{ opacity: 0, y: -30 }}
@@ -123,16 +142,16 @@ const MovieDetails = () => {
             </h1>
 
             <div className="flex flex-wrap gap-3 text-sm">
-              <span className="bg-blue-500/20 px-3 py-1 rounded-full border border-blue-500">
+              <span className="bg-yellow-500/20 px-3 py-1 rounded-full border border-yellow-400">
                 ⭐ {movie.rating}
               </span>
-              <span className="bg-purple-500/20 px-3 py-1 rounded-full border border-purple-500">
+              <span className="bg-purple-500/20 px-3 py-1 rounded-full border border-purple-400">
                 {movie.genre}
               </span>
-              <span className="bg-green-500/20 px-3 py-1 rounded-full border border-green-500">
+              <span className="bg-green-500/20 px-3 py-1 rounded-full border border-green-400">
                 {movie.language}
               </span>
-              <span className="bg-pink-500/20 px-3 py-1 rounded-full border border-pink-500">
+              <span className="bg-pink-500/20 px-3 py-1 rounded-full border border-pink-400">
                 {movie.country}
               </span>
             </div>
@@ -224,7 +243,9 @@ const MovieDetails = () => {
             <span className="font-semibold">{movie.title}</span>?
           </p>
           <div className="flex justify-center gap-4">
-            <button className="btn btn-error text-white">Yes, Delete</button>
+            <button onClick={handleDelete} className="btn btn-error text-white">
+              Yes, Delete
+            </button>
             <form method="dialog">
               <button className="btn">Cancel</button>
             </form>

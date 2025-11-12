@@ -12,7 +12,7 @@ const AllMovies = () => {
     const fetchMovies = async () => {
       try {
         const res = await axios.get(
-          "https://moviemaster-pro-server.vercel.app/movies"
+          "https://moviemaster-pro-server-private.vercel.app/movies"
         );
         setMovies(res.data);
       } catch (error) {

@@ -14,7 +14,7 @@ const HeroCarousel = () => {
 
   useEffect(() => {
     axios
-      .get("https://moviemaster-pro-server.vercel.app/movies")
+      .get("https://moviemaster-pro-server-private.vercel.app/movies")
       .then((res) => setMovies(res.data.slice(0, 6)))
       .catch((err) => console.error("❌ Error fetching movies:", err));
   }, []);

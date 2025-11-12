@@ -18,12 +18,11 @@ const MyCollection = () => {
     const fetchUserMovies = async () => {
       try {
         const res = await axios.get(
-          `https://moviemaster-pro-server.vercel.app/movies`
+          `https://moviemaster-pro-server-private.vercel.app/movies/user/${user.email}`
         );
-        const userMovies = res.data.filter((m) => m.addedBy === user.email);
-        setMovies(userMovies);
-      } catch (err) {
-        console.error(err);
+        setMovies(res.data);
+      } catch {
+        toast.error("Failed to fetch movies");
       } finally {
         setLoading(false);
       }
@@ -40,11 +39,11 @@ const MyCollection = () => {
   const confirmDelete = async () => {
     try {
       await axios.delete(
-        `https://moviemaster-pro-server.vercel.app/movies/${deleteId}`
+        `https://moviemaster-pro-server-private.vercel.app/movies/${deleteId}`
       );
-      setMovies(movies.filter((m) => m._id !== deleteId));
+      setMovies((prev) => prev.filter((m) => m._id !== deleteId));
       toast.success(`"${deleteTitle}" deleted successfully!`);
-    } catch (err) {
+    } catch {
       toast.error("Failed to delete movie.");
     } finally {
       document.getElementById("delete_modal").close();
@@ -104,10 +103,6 @@ const MyCollection = () => {
                     src={movie.posterUrl}
                     alt={movie.title}
                     className="max-h-full max-w-full object-contain transition-transform duration-500 group-hover:scale-105"
-                    onError={(e) =>
-                      (e.target.src =
-                        "https://dummyimage.com/400x600/000/fff&text=No+Image")
-                    }
                   />
                 </div>
               </Link>
@@ -135,38 +130,6 @@ const MyCollection = () => {
           ))}
         </motion.div>
       )}
-
-      <motion.footer
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.8, duration: 1 }}
-        className="text-center text-base-content/70 text-sm mt-20"
-      >
-        © {new Date().getFullYear()} MovieMatrix 🎥 — Manage with Confidence.
-      </motion.footer>
-
-      <dialog id="delete_modal" className="modal">
-        <div className="modal-box bg-base-200 text-center">
-          <h3 className="text-lg font-bold text-red-500 mb-3">
-            ⚠️ Confirm Delete
-          </h3>
-          <p className="text-base-content/80 mb-6">
-            Are you sure you want to delete{" "}
-            <span className="font-semibold">{deleteTitle}</span>?
-          </p>
-          <div className="flex justify-center gap-4">
-            <button
-              onClick={confirmDelete}
-              className="btn btn-error text-white"
-            >
-              Yes, Delete
-            </button>
-            <form method="dialog">
-              <button className="btn">Cancel</button>
-            </form>
-          </div>
-        </div>
-      </dialog>
     </div>
   );
 };
