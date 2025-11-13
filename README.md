@@ -1,98 +1,73 @@
-Movie Matrix — Online Movie Platform
-Live Demo: https://movie-matrix10.netlify.app/
+<h1 align="center" style="font-size: 42px; font-weight: 800;">
+  Movie Matrix
+</h1>
 
-A modern, fast and elegant movie browsing platform built with React, TailwindCSS and Firebase.
-Users can explore movies, view details, manage a personal watchlist and enjoy a smooth, responsive UI.
+<p align="center">
+  <strong>Online Movie Platform</strong><br/>
+  Clean · Fast · Responsive · Modern UI
+</p>
 
-Overview
+<p align="center">
+  <a href="https://movie-matrix10.netlify.app/">Live Demo</a>
+</p>
 
-Movie Matrix is designed to give users an enjoyable and interactive movie-browsing experience.
-It provides a polished interface for exploring movies, reading summaries, viewing posters, and saving favorites.
+---
 
-Key highlights:
+## Overview
 
-Clean UI with modern animations
+Movie Matrix is a modern and elegant online movie browsing platform built with React, TailwindCSS, DaisyUI, Firebase and Vite.  
+It provides a seamless and responsive user experience with polished animations, theming, and user-specific watchlist features.
 
-Fully responsive layout
+---
 
-Fast routing with Vite + React
+## Features
 
-Firebase authentication
+### Movie Browsing
+- Dynamic movie collection grid  
+- Poster display with fallback images  
+- Detailed movie information (rating, genre, cast, plot, year, etc.)
 
-User-specific watchlist system
+### Watchlist System
+- Add/remove movies to personal watchlist  
+- Confirmation modal for actions  
+- Real-time UI updates  
+- Persistent data linked to user account  
 
-Features
-Movie Browsing
+### User Authentication
+- Firebase authentication  
+- Protected watchlist route  
+- User-specific saved movies  
 
-Dynamic movie grid
+### Theming
+- Light & Dark theme support  
+- Theme saved in localStorage  
+- Styled with TailwindCSS + DaisyUI
 
-Poster display
+### UI/UX Enhancements
+- Framer Motion animations  
+- Swiper sliders  
+- Toast notifications  
+- Fully responsive design  
 
-Movie details including rating, cast, genre and summary
+---
 
-Watchlist System
+## Tech Stack
 
-Add/remove movies to user-specific watchlist
+### Frontend
+- React 19  
+- React Router 7  
+- Vite  
+- TailwindCSS 4  
+- DaisyUI  
+- Flowbite  
+- Framer Motion  
+- Swiper  
+- AOS / Animate.css  
 
-Confirmation modal
+### Backend & Utilities
+- Firebase  
+- Axios  
+- React Hot Toast  
 
-Real-time update of watchlist items
+---
 
-Persistent storage
-
-User Authentication
-
-Firebase authentication
-
-Protected routes for watchlist
-
-User-specific content
-
-Theming
-
-Light & Dark theme support
-
-Theme persists via localStorage
-
-Fully styled using Tailwind & DaisyUI
-
-Smooth UI/UX
-
-Framer Motion animations
-
-Swiper sliders
-
-Toast notifications
-
-Error fallback images
-
-Highly optimized responsive layout
-
-Tech Stack
-Frontend
-
-React 19
-
-React Router 7
-
-Vite
-
-TailwindCSS 4
-
-DaisyUI
-
-Flowbite
-
-Framer Motion
-
-Swiper
-
-AOS / Animate.css
-
-Backend & Utilities
-
-Firebase
-
-Axios
-
-React Hot Toast
