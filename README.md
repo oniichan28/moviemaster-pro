@@ -7,7 +7,7 @@ Built with React, Firebase & TailwindCSS — fully responsive and user-centric.
 ---
 
 ## 🌐 Live Demo  
-🔗 **ADD LIVE LINK HERE**
+🔗 **https://movie-matrix10.netlify.app/**
 
 ---
 
