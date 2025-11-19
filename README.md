@@ -76,7 +76,7 @@ Built with React, Firebase & TailwindCSS — fully responsive and user-centric.
 ## 📦 Dependencies
 
 ### **Main Dependencies**
-```json
+
 {
   - "@tailwindcss/vite": "^4.1.15",
   - "animate.css": "^4.1.1",
